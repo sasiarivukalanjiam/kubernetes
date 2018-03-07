@@ -164,7 +164,7 @@ func (saConfig *serviceAccountConfig) Run() error {
 			}
 			continue
 		}
-		patched, err := resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, types.StrategicMergePatchType, patch.Patch)
+		patched, err := resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, types.StrategicMergePatchType, patch.Patch).Do().Get()
 		if err != nil {
 			patchErrs = append(patchErrs, fmt.Errorf("failed to patch ServiceAccountName %v", err))
 			continue
@@ -172,7 +172,7 @@ func (saConfig *serviceAccountConfig) Run() error {
 		info.Refresh(patched, true)
 		if saConfig.record || cmdutil.ContainsChangeCause(info) {
 			if patch, patchType, err := cmdutil.ChangeResourcePatch(info, saConfig.changeCause); err == nil {
-				if patched, err = resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, patchType, patch); err != nil {
+				if patched, err = resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, patchType, patch).Do().Get(); err != nil {
 					fmt.Fprintf(saConfig.err, "WARNING: changes to %s/%s can't be recorded: %v\n", info.Mapping.Resource, info.Name, err)
 				}
 			}

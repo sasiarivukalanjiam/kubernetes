@@ -245,7 +245,7 @@ func (o *ImageOptions) Run() error {
 		}
 
 		// patch the change
-		obj, err := resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, types.StrategicMergePatchType, patch.Patch)
+		obj, err := resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, types.StrategicMergePatchType, patch.Patch).Do().Get()
 		if err != nil {
 			allErrs = append(allErrs, fmt.Errorf("failed to patch image update to pod template: %v\n", err))
 			continue
@@ -255,7 +255,7 @@ func (o *ImageOptions) Run() error {
 		// record this change (for rollout history)
 		if o.Record || cmdutil.ContainsChangeCause(info) {
 			if patch, patchType, err := cmdutil.ChangeResourcePatch(info, o.ChangeCause); err == nil {
-				if obj, err = resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, patchType, patch); err != nil {
+				if obj, err = resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, patchType, patch).Do().Get(); err != nil {
 					fmt.Fprintf(o.Err, "WARNING: changes to %s/%s can't be recorded: %v\n", info.Mapping.Resource, info.Name, err)
 				}
 			}

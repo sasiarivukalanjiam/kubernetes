@@ -712,6 +712,14 @@ run_pod_tests() {
   kubectl patch "${kube_flags[@]}" pod valid-pod --type="json" -p='[{"op": "replace", "path": "/spec/containers/0/image", "value":"nginx"}]'
   # Post-condition: valid-pod POD has image nginx
   kube::test::get_object_assert pods "{{range.items}}{{$image_field}}:{{end}}" 'nginx:'
+  # prove that patch can patch all
+  kubectl patch "${kube_flags[@]}" pod --all --type="json" -p='[{"op": "replace", "path": "/spec/containers/0/image", "value":"nginx3"}]'
+  # Post-condition: valid-pod POD has image nginx3
+  kube::test::get_object_assert pods "{{range.items}}{{$image_field}}:{{end}}" 'nginx3:'
+  # prove that patch can patch all-namespaces
+  kubectl patch "${kube_flags[@]}" pod --all-namespaces --type="json" -p='[{"op": "replace", "path": "/spec/containers/0/image", "value":"nginx4"}]'
+  # Post-condition: valid-pod POD has image nginx4
+  kube::test::get_object_assert pods "{{range.items}}{{$image_field}}:{{end}}" 'nginx4:'
   # prove that yaml input works too
   YAML_PATCH=$'spec:\n  containers:\n  - name: kubernetes-serve-hostname\n    image: changed-with-yaml\n'
   kubectl patch "${kube_flags[@]}" pod valid-pod -p="${YAML_PATCH}"

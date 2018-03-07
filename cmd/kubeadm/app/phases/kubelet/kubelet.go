@@ -133,7 +133,7 @@ func updateNodeWithConfigMap(client clientset.Interface, nodeName string) error 
 			return false, err
 		}
 
-		if _, err := client.CoreV1().Nodes().Patch(node.Name, types.StrategicMergePatchType, patchBytes); err != nil {
+		if _, err := client.CoreV1().Nodes().Patch(node.Name, types.StrategicMergePatchType, patchBytes).Do().Get(); err != nil {
 			if apierrs.IsConflict(err) {
 				fmt.Println("Temporarily unable to update node metadata due to conflict (will retry)")
 				return false, nil

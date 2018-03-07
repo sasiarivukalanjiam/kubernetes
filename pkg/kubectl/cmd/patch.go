@@ -97,9 +97,12 @@ func NewCmdPatch(f cmdutil.Factory, out io.Writer) *cobra.Command {
 		ValidArgs:  validArgs,
 		ArgAliases: kubectl.ResourceAliases(validArgs),
 	}
+	cmd.Flags().Bool("all", false, "Select all resources, including uninitialized ones, in the namespace of the specified resource types")
+	cmd.Flags().Bool("all-namespaces", false, "If present, patch the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
 	cmd.Flags().StringP("patch", "p", "", "The patch to be applied to the resource JSON file.")
 	cmd.MarkFlagRequired("patch")
 	cmd.Flags().String("type", "strategic", fmt.Sprintf("The type of patch being provided; one of %v", sets.StringKeySet(patchTypes).List()))
+	cmd.Flags().String("subresource", "", "A sub-resource of the provided resource to patch (e.g. 'status').")
 	cmdutil.AddPrinterFlags(cmd)
 	cmdutil.AddRecordFlag(cmd)
 	cmdutil.AddInclude3rdPartyFlags(cmd)
@@ -121,6 +124,12 @@ func RunPatch(f cmdutil.Factory, out io.Writer, cmd *cobra.Command, args []strin
 	cmdNamespace, enforceNamespace, err := f.DefaultNamespace()
 	if err != nil {
 		return err
+	}
+
+	allInNamespace := cmdutil.GetFlagBool(cmd, "all")
+	allNamespaces := cmdutil.GetFlagBool(cmd, "all-namespaces")
+	if allNamespaces {
+		enforceNamespace = false
 	}
 
 	patchType := types.StrategicMergePatchType
@@ -146,7 +155,8 @@ func RunPatch(f cmdutil.Factory, out io.Writer, cmd *cobra.Command, args []strin
 	r := f.NewBuilder().
 		Unstructured().
 		ContinueOnError().
-		NamespaceParam(cmdNamespace).DefaultNamespace().
+		NamespaceParam(cmdNamespace).DefaultNamespace().AllNamespaces(allNamespaces).
+		SelectAllParam(allInNamespace || allNamespaces).
 		FilenameParam(enforceNamespace, &options.FilenameOptions).
 		ResourceTypeOrNameArgs(false, args...).
 		Flatten().
@@ -172,7 +182,7 @@ func RunPatch(f cmdutil.Factory, out io.Writer, cmd *cobra.Command, args []strin
 			dataChangedMsg := "not patched"
 			didPatch := false
 			helper := resource.NewHelper(client, mapping)
-			patchedObj, err := helper.Patch(namespace, name, patchType, patchBytes)
+			patchedObj, err := helper.Patch(namespace, name, patchType, patchBytes).Do().Get()
 			if err != nil {
 				return err
 			}
@@ -182,7 +192,7 @@ func RunPatch(f cmdutil.Factory, out io.Writer, cmd *cobra.Command, args []strin
 				infoCopy := *info
 				infoCopy.Object = patchedObj
 				if patch, patchType, err := cmdutil.ChangeResourcePatch(&infoCopy, f.Command(cmd, true)); err == nil {
-					if recordedObj, err := helper.Patch(info.Namespace, info.Name, patchType, patch); err != nil {
+					if recordedObj, err := helper.Patch(info.Namespace, info.Name, patchType, patch).Do().Get(); err != nil {
 						glog.V(4).Infof("error recording reason: %v", err)
 					} else {
 						patchedObj = recordedObj

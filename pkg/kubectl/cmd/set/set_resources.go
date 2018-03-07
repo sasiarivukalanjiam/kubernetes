@@ -238,7 +238,7 @@ func (o *ResourcesOptions) Run() error {
 			continue
 		}
 
-		obj, err := resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, types.StrategicMergePatchType, patch.Patch)
+		obj, err := resource.NewHelper(info.Client, info.Mapping).Patch(info.Namespace, info.Name, types.StrategicMergePatchType, patch.Patch).Do().Get()
 		if err != nil {
 			allErrs = append(allErrs, fmt.Errorf("failed to patch limit update to pod template %v\n", err))
 			continue

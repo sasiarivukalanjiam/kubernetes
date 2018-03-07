@@ -265,7 +265,7 @@ func (o *LabelOptions) RunLabel(f cmdutil.Factory, cmd *cobra.Command) error {
 			helper := resource.NewHelper(client, mapping)
 
 			if createdPatch {
-				outputObj, err = helper.Patch(namespace, name, types.MergePatchType, patchBytes)
+				outputObj, err = helper.Patch(namespace, name, types.MergePatchType, patchBytes).Do().Get()
 			} else {
 				outputObj, err = helper.Replace(namespace, name, false, obj)
 			}

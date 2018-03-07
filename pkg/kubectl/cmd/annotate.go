@@ -257,7 +257,7 @@ func (o AnnotateOptions) RunAnnotate(f cmdutil.Factory, cmd *cobra.Command) erro
 			helper := resource.NewHelper(client, mapping)
 
 			if createdPatch {
-				outputObj, err = helper.Patch(namespace, name, types.MergePatchType, patchBytes)
+				outputObj, err = helper.Patch(namespace, name, types.MergePatchType, patchBytes).Do().Get()
 			} else {
 				outputObj, err = helper.Replace(namespace, name, false, obj)
 			}

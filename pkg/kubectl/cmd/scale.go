@@ -178,7 +178,7 @@ func RunScale(f cmdutil.Factory, out, errOut io.Writer, cmd *cobra.Command, args
 				return err
 			}
 			helper := resource.NewHelper(client, mapping)
-			_, err = helper.Patch(info.Namespace, info.Name, patchType, patchBytes)
+			_, err = helper.Patch(info.Namespace, info.Name, patchType, patchBytes).Do().Get()
 			if err != nil {
 				return err
 			}

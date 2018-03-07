@@ -72,7 +72,7 @@ func MarkMaster(client clientset.Interface, masterName string, taint bool) error
 			return false, err
 		}
 
-		if _, err := client.CoreV1().Nodes().Patch(n.Name, types.StrategicMergePatchType, patchBytes); err != nil {
+		if _, err := client.CoreV1().Nodes().Patch(n.Name, types.StrategicMergePatchType, patchBytes).Do().Get(); err != nil {
 			if apierrs.IsConflict(err) {
 				fmt.Println("[markmaster] Temporarily unable to update master node metadata due to conflict (will retry)")
 				return false, nil

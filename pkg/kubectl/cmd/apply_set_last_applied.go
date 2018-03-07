@@ -178,7 +178,7 @@ func (o *SetLastAppliedOptions) RunSetLastApplied(f cmdutil.Factory, cmd *cobra.
 				return err
 			}
 			helper := resource.NewHelper(client, mapping)
-			patchedObj, err := helper.Patch(o.Namespace, info.Name, patch.PatchType, patch.Patch)
+			patchedObj, err := helper.Patch(o.Namespace, info.Name, patch.PatchType, patch.Patch).Do().Get()
 			if err != nil {
 				return err
 			}

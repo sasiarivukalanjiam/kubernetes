@@ -99,7 +99,7 @@ func (gc *GarbageCollector) patchObject(item objectReference, patch []byte) (*un
 	if err != nil {
 		return nil, err
 	}
-	return client.Resource(resource, item.Namespace).Patch(item.Name, types.StrategicMergePatchType, patch)
+	return client.Resource(resource, item.Namespace).Patch(item.Name, types.StrategicMergePatchType, patch).Do().Get()
 }
 
 // TODO: Using Patch when strategicmerge supports deleting an entry from a

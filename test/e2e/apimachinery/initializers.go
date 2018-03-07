@@ -244,7 +244,7 @@ var _ = SIGDescribe("Initializers [Feature:Initializers]", func() {
 
 		// update the replicaset spec to trigger a resync
 		patch := []byte(`{"spec":{"minReadySeconds":5}}`)
-		persistedRS, err = c.ExtensionsV1beta1().ReplicaSets(ns).Patch(persistedRS.Name, types.StrategicMergePatchType, patch)
+		persistedRS, err = c.ExtensionsV1beta1().ReplicaSets(ns).Patch(persistedRS.Name, types.StrategicMergePatchType, patch).Do().Get()
 		Expect(err).NotTo(HaveOccurred())
 
 		// wait for replicaset controller to confirm that it has handle the spec update

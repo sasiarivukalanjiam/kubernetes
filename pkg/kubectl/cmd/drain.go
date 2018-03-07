@@ -712,7 +712,7 @@ func (o *DrainOptions) RunCordonOrUncordon(desired bool) error {
 						fmt.Printf("error: unable to %s node %q: %v", cordonOrUncordon, nodeInfo.Name, err)
 						continue
 					}
-					_, err = helper.Patch(cmdNamespace, nodeInfo.Name, types.StrategicMergePatchType, patchBytes)
+					_, err = helper.Patch(cmdNamespace, nodeInfo.Name, types.StrategicMergePatchType, patchBytes).Do().Get()
 					if err != nil {
 						fmt.Printf("error: unable to %s node %q: %v", cordonOrUncordon, nodeInfo.Name, err)
 						continue
