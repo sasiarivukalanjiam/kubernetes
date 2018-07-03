@@ -291,15 +291,6 @@ func (s *Scheme) New(kind schema.GroupVersionKind) (Object, error) {
 	return nil, NewNotRegisteredErrForKind(kind)
 }
 
-// AddGenericConversionFunc adds a function that accepts the ConversionFunc call pattern
-// (for two conversion types) to the converter. These functions are checked first during
-// a normal conversion, but are otherwise not called. Use AddConversionFuncs when registering
-// typed conversions.
-// DEPRECATED: Use AddConversionFunc
-func (s *Scheme) AddGenericConversionFunc(fn conversion.GenericConversionFunc) {
-	s.converter.AddGenericConversionFunc(fn)
-}
-
 // Log sets a logger on the scheme. For test purposes only
 func (s *Scheme) Log(l conversion.DebugLogger) {
 	s.converter.Debug = l
@@ -345,17 +336,6 @@ func (s *Scheme) AddIgnoredConversionType(from, to interface{}) error {
 func (s *Scheme) AddConversionFuncs(conversionFuncs ...interface{}) error {
 	for _, f := range conversionFuncs {
 		if err := s.converter.RegisterConversionFunc(f); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// AddGeneratedConversionFuncs registers conversion functions that were
-// automatically generated.
-func (s *Scheme) AddGeneratedConversionFuncs(conversionFuncs ...interface{}) error {
-	for _, f := range conversionFuncs {
-		if err := s.converter.RegisterGeneratedConversionFunc(f); err != nil {
 			return err
 		}
 	}
