@@ -64,12 +64,14 @@ func ValidateMasterConfiguration(c *kubeadm.MasterConfiguration) field.ErrorList
 
 // ValidateProxy validates proxy configuration and collects all encountered errors
 func ValidateProxy(c *kubeproxyconfigv1alpha1.KubeProxyConfiguration, fldPath *field.Path) field.ErrorList {
+	if c == nil {
+		return nil
+	}
 	allErrs := field.ErrorList{}
 
 	// Convert to the internal version
 	internalcfg := &kubeproxyconfig.KubeProxyConfiguration{}
-	err := kubeproxyscheme.Scheme.Convert(c, internalcfg, nil)
-	if err != nil {
+	if err := kubeproxyscheme.Scheme.Convert(c, internalcfg, nil); err != nil {
 		allErrs = append(allErrs, field.Invalid(fldPath, "", err.Error()))
 		return allErrs
 	}
